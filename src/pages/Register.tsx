@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { User, UserPlus } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserPlus } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { userService } from '../services/api';
 import type { User as UserType } from '../types';
 
 export const Register: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -52,6 +53,7 @@ export const Register: React.FC = () => {
 
     setIsLoading(true);
     setSuccessMessage('');
+    setErrors({});
 
     try {
       const userData: UserType = {
@@ -62,16 +64,32 @@ export const Register: React.FC = () => {
 
       await userService.create(userData);
       
-      setSuccessMessage('Usuário cadastrado com sucesso!');
+      setSuccessMessage('Usuário cadastrado com sucesso! Redirecionando para login...');
+      
+      // Limpar formulário
       setFormData({
         name: '',
         email: '',
         password: '',
         confirmPassword: '',
       });
-    } catch (error) {
+
+      navigate('/login');
+
+    } catch (error: any) {
       console.error('Erro ao cadastrar usuário:', error);
-      setErrors({ submit: 'Erro ao cadastrar usuário. Tente novamente.' });
+
+      if (error.response?.status === 400) {
+        if (error.response.data?.message?.includes('email')) {
+          setErrors({ email: 'Este email já está em uso.' });
+        } else {
+          setErrors({ submit: error.response.data.message });
+        }
+      } else if (error.response?.data?.message) {
+        setErrors({ submit: error.response.data.message });
+      } else {
+        setErrors({ submit: 'Erro ao conectar com o servidor. Verifique se a API está rodando.' });
+      }
     } finally {
       setIsLoading(false);
     }

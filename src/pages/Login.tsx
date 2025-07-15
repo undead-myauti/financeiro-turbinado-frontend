@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogIn, Eye, EyeOff } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
+import { userService } from '../services/api';
+import type { LoginRequest } from '../types';
 
 export const Login: React.FC = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -37,14 +40,31 @@ export const Login: React.FC = () => {
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setErrors({});
 
     try {
-      console.log('Tentando fazer login:', formData.email);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Login realizado com sucesso!');
-    } catch (error) {
+      const credentials: LoginRequest = {
+        email: formData.email.trim(),
+        password: formData.password,
+      };
+
+      const response = await userService.login(credentials);
+      
+      console.log('Login realizado com sucesso:', response.message);
+      
+      // Redirecionar para dashboard ou página principal
+      navigate('/dashboard');
+      
+    } catch (error: any) {
       console.error('Erro ao fazer login:', error);
-      setErrors({ submit: 'Email ou senha incorretos.' });
+      
+      if (error.response?.status === 401) {
+        setErrors({ submit: 'Email ou senha incorretos.' });
+      } else if (error.response?.data?.message) {
+        setErrors({ submit: error.response.data.message });
+      } else {
+        setErrors({ submit: 'Erro ao conectar com o servidor. Verifique se a API está rodando.' });
+      }
     } finally {
       setIsLoading(false);
     }
