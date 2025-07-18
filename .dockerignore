@@ -121,6 +121,4 @@ __tests__/
 .eslintrc*
 .prettierrc*
 .babelrc*
-jest.config.*
-tsconfig.json
-vite.config.* 
+jest.config.* 

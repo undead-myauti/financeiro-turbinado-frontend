@@ -23,4 +23,4 @@ RUN npm install -g serve
 EXPOSE 3000
 
 # Comando para rodar a aplicação
-CMD ["serve", "-s", "dist", "-l", "3000"] 
+CMD ["serve", "-s", "dist", "-l", "3000", "-n"] 
