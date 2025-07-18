@@ -112,10 +112,10 @@ export const ExpensesList: React.FC = () => {
                 className="flex items-center space-x-2"
               >
                 <Plus className="w-4 h-4" />
-                <span>Nova Despesa</span>
+                <span className="hidden sm:inline">Nova Despesa</span>
               </Button>
               
-              <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
                   <span className="text-gray-300 text-sm">👤</span>
                 </div>
@@ -126,7 +126,7 @@ export const ExpensesList: React.FC = () => {
                 variant="secondary"
                 className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
               >
-                <span>Sair</span>
+                <span className="hidden sm:inline">Sair</span>
               </Button>
             </div>
           </div>
@@ -173,9 +173,9 @@ export const ExpensesList: React.FC = () => {
                   key={expense.id}
                   className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-red-500 transition-all duration-300"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center space-x-4 mb-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 mb-2">
                         <h3 className="text-lg font-semibold text-white">
                           {expense.name}
                         </h3>
@@ -184,7 +184,7 @@ export const ExpensesList: React.FC = () => {
                         </span>
                       </div>
                       
-                      <div className="flex items-center space-x-6 text-sm text-gray-400">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-6 text-sm text-gray-400">
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-4 h-4" />
                           <span>{formatDate(expense.date)}</span>
@@ -203,7 +203,7 @@ export const ExpensesList: React.FC = () => {
                         className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700"
                       >
                         <Edit className="w-4 h-4" />
-                        <span>Editar</span>
+                        <span className="hidden sm:inline">Editar</span>
                       </Button>
                       
                       <Button
@@ -212,7 +212,7 @@ export const ExpensesList: React.FC = () => {
                         className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                       >
                         <Trash2 className="w-4 h-4" />
-                        <span>Excluir</span>
+                        <span className="hidden sm:inline">Excluir</span>
                       </Button>
                     </div>
                   </div>

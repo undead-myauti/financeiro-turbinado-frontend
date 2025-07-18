@@ -66,7 +66,7 @@ export const Dashboard: React.FC = () => {
 
   const formatCurrency = (value: number) => {
     if (isNaN(value) || value === null || value === undefined) {
-      return 'Nenhum dado';
+      return 'R$ 0,00';
     }
     
     return new Intl.NumberFormat('pt-BR', {
@@ -77,17 +77,22 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-full bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-lg">Carregando dashboard...</div>
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="glass rounded-2xl p-8 text-center animate-fade-in">
+          <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <span className="text-2xl">💰</span>
+          </div>
+          <div className="text-white text-lg">Carregando dashboard...</div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full h-full bg-gray-900 flex flex-col overflow-hidden">
+      <div className="min-h-screen bg-gray-900 flex flex-col">
         {/* Header */}
-        <header className="bg-gray-800 border-b border-gray-700 shadow-lg flex-shrink-0">
+        <header className="glass border-b border-gray-700/50 shadow-lg flex-shrink-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <div className="flex items-center">
@@ -95,23 +100,24 @@ export const Dashboard: React.FC = () => {
                   <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
                     <span className="text-white text-sm font-bold">💰</span>
                   </div>
-                  <h1 className="text-xl font-bold text-white">
+                  <h1 className="text-xl font-bold gradient-text">
                     Financeiro Turbinado
                   </h1>
                 </div>
               </div>
               
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                <div className="hidden sm:flex items-center space-x-2">
+                  <div className="w-8 h-8 glass rounded-full flex items-center justify-center">
                     <User className="w-4 h-4 text-gray-300" />
                   </div>
                   <span className="text-gray-300 text-sm">Olá, <b>{userName}</b></span>
                 </div>
                 <Button
                   onClick={handleLogout}
-                  variant="secondary"
-                  className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+                  variant="danger"
+                  size="sm"
+                  className="flex items-center space-x-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>Sair</span>
@@ -122,9 +128,9 @@ export const Dashboard: React.FC = () => {
         </header>
 
         {/* Conteúdo principal - Estado de erro */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="bg-gray-800 rounded-xl p-8 md:p-12 shadow-2xl border border-gray-700 text-center">
+        <main className="flex-1 py-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="glass rounded-2xl p-8 md:p-12 shadow-2xl text-center animate-fade-in">
               <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-red-500 to-orange-500 rounded-full mb-6">
                 <span className="text-4xl">⚠️</span>
               </div>
@@ -137,7 +143,7 @@ export const Dashboard: React.FC = () => {
                 {error}
               </p>
 
-              <div className="bg-gray-700 rounded-lg p-6 mb-8 text-left">
+              <div className="card-modern rounded-lg p-6 mb-8 text-left">
                 <h3 className="text-white font-semibold mb-4">🔧 Como resolver:</h3>
                 <ul className="text-gray-300 space-y-2">
                   <li>• Verifique se a API Java está rodando na porta 8000</li>
@@ -150,7 +156,8 @@ export const Dashboard: React.FC = () => {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   onClick={() => window.location.reload()}
-                  className="flex items-center space-x-2 px-8 py-3 text-lg"
+                  size="lg"
+                  className="flex items-center space-x-2"
                 >
                   <span>🔄 Recarregar Página</span>
                 </Button>
@@ -158,7 +165,8 @@ export const Dashboard: React.FC = () => {
                 <Button 
                   onClick={handleLogout}
                   variant="secondary"
-                  className="flex items-center space-x-2 px-8 py-3 text-lg"
+                  size="lg"
+                  className="flex items-center space-x-2"
                 >
                   <LogOut className="w-5 h-5" />
                   <span>Fazer Logout</span>
@@ -171,158 +179,10 @@ export const Dashboard: React.FC = () => {
     );
   }
 
-  // Estado para quando não há dados financeiros
-  if (!hasData) {
-    return (
-      <div className="w-full h-full bg-gray-900 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="bg-gray-800 border-b border-gray-700 shadow-lg flex-shrink-0">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">💰</span>
-                  </div>
-                  <h1 className="text-xl font-bold text-white">
-                    Financeiro Turbinado
-                  </h1>
-                </div>
-              </div>
-              
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 text-gray-300" />
-                  </div>
-                  <span className="text-gray-300 text-sm">Olá, <b>{userName}</b></span>
-                </div>
-                <Button
-                  onClick={handleLogout}
-                  variant="secondary"
-                  className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Sair</span>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Conteúdo principal - Estado vazio */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="bg-gray-800 rounded-xl p-8 md:p-12 shadow-2xl border border-gray-700 text-center">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mb-6">
-                <span className="text-4xl">💰</span>
-              </div>
-              
-              <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Bem-vindo ao Financeiro Turbinado!
-              </h2>
-              
-              <p className="text-gray-400 text-lg mb-8 max-w-2xl mx-auto">
-                Parece que você ainda não tem dados financeiros registrados. 
-                Comece adicionando suas primeiras receitas e despesas para ver 
-                seu dashboard completo!
-              </p>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
-                  <div className="w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <TrendingUp className="w-6 h-6 text-green-500" />
-                  </div>
-                  <h3 className="text-white font-semibold mb-2">💰 Adicionar Receita</h3>
-                  <p className="text-gray-400 text-sm">
-                    Registre seus ganhos e entradas de dinheiro
-                  </p>
-                </div>
-
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
-                  <div className="w-12 h-12 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <TrendingDown className="w-6 h-6 text-red-500" />
-                  </div>
-                  <h3 className="text-white font-semibold mb-2">💸 Adicionar Despesa</h3>
-                  <p className="text-gray-400 text-sm">
-                    Registre seus gastos e saídas de dinheiro
-                  </p>
-                </div>
-
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <BarChart3 className="w-6 h-6 text-purple-500" />
-                  </div>
-                  <h3 className="text-white font-semibold mb-2">📊 Ver Relatórios</h3>
-                  <p className="text-gray-400 text-sm">
-                    Visualize gráficos e estatísticas
-                  </p>
-                </div>
-
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
-                  <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CreditCard className="w-6 h-6 text-blue-500" />
-                  </div>
-                  <h3 className="text-white font-semibold mb-2">💳 Adicionar Cartão</h3>
-                  <p className="text-gray-400 text-sm">
-                    Cadastre seus cartões de crédito
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  onClick={() => navigate('/add-income')}
-                  className="flex items-center space-x-2 px-8 py-3 text-lg"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Começar com Receita</span>
-                </Button>
-                
-                <Button 
-                  onClick={() => navigate('/add-expense')}
-                  variant="secondary"
-                  className="flex items-center space-x-2 px-8 py-3 text-lg"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Começar com Despesa</span>
-                </Button>
-              </div>
-
-              <div className="mt-8 pt-8 border-t border-gray-600">
-                <p className="text-gray-500 text-sm">
-                  💡 Dica: Comece criando algumas categorias e cartões para organizar melhor suas finanças!
-                </p>
-                <div className="mt-4 flex flex-col sm:flex-row gap-3">
-                  <Button 
-                    onClick={() => navigate('/add-category')}
-                    variant="secondary"
-                    className="flex items-center space-x-2"
-                  >
-                    <Plus className="w-4 h-4" />
-                    <span>Criar Primeira Categoria</span>
-                  </Button>
-                  <Button 
-                    onClick={() => navigate('/add-credit-card')}
-                    variant="secondary"
-                    className="flex items-center space-x-2"
-                  >
-                    <CreditCard className="w-4 h-4" />
-                    <span>Adicionar Cartão</span>
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
   return (
-    <div className="w-full h-full bg-gray-900 flex flex-col overflow-hidden">
-      {/* Header logo abaixo da barra do browser */}
-      <header className="bg-gray-800 border-b border-gray-700 shadow-lg flex-shrink-0">
+    <div className="min-h-screen bg-gray-900 flex flex-col">
+      {/* Header */}
+      <header className="glass border-b border-gray-700/50 shadow-lg flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -330,26 +190,27 @@ export const Dashboard: React.FC = () => {
                 <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
                   <span className="text-white text-sm font-bold">💰</span>
                 </div>
-                <h1 className="text-xl font-bold text-white">
+                <h1 className="text-xl font-bold gradient-text">
                   Financeiro Turbinado
                 </h1>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+              <div className="hidden sm:flex items-center space-x-2">
+                <div className="w-8 h-8 glass rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-gray-300" />
                 </div>
                 <span className="text-gray-300 text-sm">Olá, <b>{userName}</b></span>
               </div>
               <Button
                 onClick={handleLogout}
-                variant="secondary"
-                className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+                variant="danger"
+                size="sm"
+                className="flex items-center space-x-2"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sair</span>
+                <span className="hidden sm:inline">Sair</span>
               </Button>
             </div>
           </div>
@@ -357,17 +218,17 @@ export const Dashboard: React.FC = () => {
       </header>
 
       {/* Conteúdo principal */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <main className="flex-1 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Quadrado central com informações gerais */}
           <div className="max-w-4xl mx-auto">
-            <div className="bg-gray-800 rounded-xl p-6 md:p-8 shadow-2xl border border-gray-700">
+            <div className="glass rounded-2xl p-6 md:p-8 shadow-2xl animate-fade-in">
               <div className="text-center mb-6">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mb-4">
                   <span className="text-2xl">💰</span>
                 </div>
-                <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                  📊 Resumo Financeiro
+                <h2 className="text-2xl md:text-3xl font-bold gradient-text mb-2">
+                  Resumo Financeiro
                 </h2>
                 <p className="text-gray-400">
                   🎯 Visão geral das suas finanças
@@ -377,7 +238,7 @@ export const Dashboard: React.FC = () => {
               {/* Grid de informações */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Saldo Atual */}
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-green-500 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20">
+                <div className="card-modern rounded-xl p-6 border border-green-500/20 hover:border-green-500/40">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-300 text-sm font-medium">💵 Saldo Atual</h3>
                     <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
@@ -394,7 +255,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Receitas do Mês */}
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-green-500 transition-all duration-300 hover:shadow-lg hover:shadow-green-500/20">
+                <div className="card-modern rounded-xl p-6 border border-green-500/20 hover:border-green-500/40">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-300 text-sm font-medium">💸 Receitas do Mês</h3>
                     <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center">
@@ -411,7 +272,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Despesas do Mês */}
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-red-500 transition-all duration-300 hover:shadow-lg hover:shadow-red-500/20">
+                <div className="card-modern rounded-xl p-6 border border-red-500/20 hover:border-red-500/40">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-300 text-sm font-medium">💳 Despesas do Mês</h3>
                     <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center">
@@ -428,7 +289,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Saldo do Mês */}
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-blue-500 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+                <div className="card-modern rounded-xl p-6 border border-blue-500/20 hover:border-blue-500/40">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-300 text-sm font-medium">🏦 Saldo do Mês</h3>
                     <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
@@ -445,7 +306,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Total de Cartões */}
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-purple-500 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/20">
+                <div className="card-modern rounded-xl p-6 border border-purple-500/20 hover:border-purple-500/40">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-300 text-sm font-medium">💳 Cartões Ativos</h3>
                     <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
@@ -453,9 +314,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-2xl font-bold text-white">
-                    {isNaN(dashboardData.activeCreditCards) || dashboardData.activeCreditCards === null || dashboardData.activeCreditCards === undefined 
-                      ? 'Nenhum cartão' 
-                      : dashboardData.activeCreditCards}
+                    {dashboardData.activeCreditCards || 0}
                   </p>
                   <div className="mt-2 flex items-center text-purple-500 text-sm">
                     <span>💳 Cartões cadastrados</span>
@@ -463,7 +322,7 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Próximos Vencimentos */}
-                <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 hover:border-orange-500 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/20">
+                <div className="card-modern rounded-xl p-6 border border-orange-500/20 hover:border-orange-500/40">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-gray-300 text-sm font-medium">⏰ Próximos Vencimentos</h3>
                     <div className="w-10 h-10 bg-orange-500/20 rounded-full flex items-center justify-center">
@@ -471,9 +330,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                   </div>
                   <p className="text-2xl font-bold text-white">
-                    {isNaN(dashboardData.upcomingDueDates) || dashboardData.upcomingDueDates === null || dashboardData.upcomingDueDates === undefined 
-                      ? 'Nenhum vencimento' 
-                      : dashboardData.upcomingDueDates}
+                    {dashboardData.upcomingDueDates || 0}
                   </p>
                   <div className="mt-2 flex items-center text-orange-500 text-sm">
                     <span>📅 Próximos 30 dias</span>
@@ -482,30 +339,30 @@ export const Dashboard: React.FC = () => {
               </div>
 
               {/* Ações rápidas */}
-              <div className="mt-6 pt-6 border-t border-gray-600">
+              <div className="mt-6 pt-6 border-t border-gray-600/50">
                 <h3 className="text-lg font-semibold text-white mb-4">⚡ Ações Rápidas</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <Button 
                     onClick={() => navigate('/add-income')}
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     💰 Adicionar Receita
                   </Button>
                   <Button 
                     onClick={() => navigate('/add-expense')}
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     💸 Adicionar Despesa
                   </Button>
                   <Button 
                     onClick={() => navigate('/add-category')}
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     🏷️ Nova Categoria
                   </Button>
                   <Button 
                     onClick={() => navigate('/add-credit-card')}
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     💳 Novo Cartão
                   </Button>
@@ -515,26 +372,132 @@ export const Dashboard: React.FC = () => {
                   <Button 
                     onClick={() => navigate('/receipts')}
                     variant="secondary"
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     📋 Ver Receitas
                   </Button>
                   <Button 
                     onClick={() => navigate('/expenses')}
                     variant="secondary"
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     📋 Ver Despesas
                   </Button>
                   <Button 
                     onClick={() => navigate('/reports')}
                     variant="secondary"
-                    className="w-full hover:scale-105 transition-transform duration-200"
+                    className="w-full"
                   >
                     📊 Ver Relatórios
                   </Button>
                 </div>
               </div>
+
+              {/* Seção de boas-vindas quando não há dados */}
+              {!hasData && (
+                <div className="mt-8 pt-8 border-t border-gray-600/50">
+                  <div className="text-center">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mb-4">
+                      <span className="text-2xl">🎉</span>
+                    </div>
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      Bem-vindo ao Financeiro Turbinado!
+                    </h3>
+                    <p className="text-gray-400 mb-6 max-w-2xl mx-auto">
+                      Parece que você ainda não tem dados financeiros registrados. 
+                      Comece adicionando suas primeiras receitas e despesas para ver 
+                      seu dashboard completo!
+                    </p>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                      <div className="card-modern rounded-lg p-4">
+                        <div className="w-10 h-10 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <TrendingUp className="w-5 h-5 text-green-500" />
+                        </div>
+                        <h4 className="text-white font-semibold mb-1 text-sm">💰 Adicionar Receita</h4>
+                        <p className="text-gray-400 text-xs">
+                          Registre seus ganhos
+                        </p>
+                      </div>
+
+                      <div className="card-modern rounded-lg p-4">
+                        <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <TrendingDown className="w-5 h-5 text-red-500" />
+                        </div>
+                        <h4 className="text-white font-semibold mb-1 text-sm">💸 Adicionar Despesa</h4>
+                        <p className="text-gray-400 text-xs">
+                          Registre seus gastos
+                        </p>
+                      </div>
+
+                      <div className="card-modern rounded-lg p-4">
+                        <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <BarChart3 className="w-5 h-5 text-purple-500" />
+                        </div>
+                        <h4 className="text-white font-semibold mb-1 text-sm">📊 Ver Relatórios</h4>
+                        <p className="text-gray-400 text-xs">
+                          Visualize gráficos
+                        </p>
+                      </div>
+
+                      <div className="card-modern rounded-lg p-4">
+                        <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <CreditCard className="w-5 h-5 text-blue-500" />
+                        </div>
+                        <h4 className="text-white font-semibold mb-1 text-sm">💳 Adicionar Cartão</h4>
+                        <p className="text-gray-400 text-xs">
+                          Cadastre cartões
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      <Button 
+                        onClick={() => navigate('/add-income')}
+                        className="flex items-center space-x-2"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        <span>Começar com Receita</span>
+                      </Button>
+                      
+                      <Button 
+                        onClick={() => navigate('/add-expense')}
+                        variant="secondary"
+                        className="flex items-center space-x-2"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        <span>Começar com Despesa</span>
+                      </Button>
+                    </div>
+
+                    <div className="mt-6 pt-6 border-t border-gray-600/50">
+                      <p className="text-gray-500 text-sm mb-4">
+                        💡 Dica: Comece criando algumas categorias e cartões para organizar melhor suas finanças!
+                      </p>
+                      <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <Button 
+                          onClick={() => navigate('/add-category')}
+                          variant="secondary"
+                          size="sm"
+                          className="flex items-center space-x-2"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                          <span>Criar Primeira Categoria</span>
+                        </Button>
+                        <Button 
+                          onClick={() => navigate('/add-credit-card')}
+                          variant="secondary"
+                          size="sm"
+                          className="flex items-center space-x-2"
+                        >
+                          <CreditCard className="w-4 h-4 mr-2" />
+                          <span>Adicionar Cartão</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

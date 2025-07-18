@@ -303,13 +303,13 @@ export const AddExpense: React.FC = () => {
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-8 mt-4">
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 flex items-center justify-center space-x-2"
+                className="flex-1 flex items-center justify-center"
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4 mr-3" />
                 <span>{isLoading ? 'Salvando...' : 'Salvar Despesa'}</span>
               </Button>
               
@@ -317,9 +317,9 @@ export const AddExpense: React.FC = () => {
                 type="button"
                 variant="secondary"
                 onClick={() => navigate('/dashboard')}
-                className="flex-1 flex items-center justify-center space-x-2"
+                className="flex-1 flex items-center justify-center"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 mr-3" />
                 <span>Cancelar</span>
               </Button>
             </div>

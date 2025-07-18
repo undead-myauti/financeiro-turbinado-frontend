@@ -21,6 +21,17 @@ export const Reports: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [hasPartialData, setHasPartialData] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Hook para detectar mudanças no tamanho da tela
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const loadReportData = async () => {
@@ -208,7 +219,7 @@ export const Reports: React.FC = () => {
   const formatCurrency = (value: number) => {
     // Verificar se o valor é NaN ou inválido
     if (isNaN(value) || value === null || value === undefined) {
-      return 'Nenhum dado';
+      return 'R$ 0,00';
     }
     
     return new Intl.NumberFormat('pt-BR', {
@@ -230,6 +241,102 @@ export const Reports: React.FC = () => {
     return Math.max(...validValues);
   };
 
+  // Função para ordenar meses cronologicamente
+  const sortMonthsChronologically = (data: { mes: string; valor: number }[]) => {
+    if (data.length === 0) return data;
+    
+    // Mapeamento de meses para números para ordenação (usando nomes completos)
+    const monthOrder = {
+      'Janeiro': 1, 'Fevereiro': 2, 'Março': 3, 'Abril': 4,
+      'Maio': 5, 'Junho': 6, 'Julho': 7, 'Agosto': 8,
+      'Setembro': 9, 'Outubro': 10, 'Novembro': 11, 'Dezembro': 12
+    };
+    
+    // Mapeamento para nomes abreviados
+    const monthAbbreviations = {
+      'Janeiro': 'Jan', 'Fevereiro': 'Fev', 'Março': 'Mar', 'Abril': 'Abr',
+      'Maio': 'Mai', 'Junho': 'Jun', 'Julho': 'Jul', 'Agosto': 'Ago',
+      'Setembro': 'Set', 'Outubro': 'Out', 'Novembro': 'Nov', 'Dezembro': 'Dez'
+    };
+    
+    return [...data].sort((a, b) => {
+      // Extrair o primeiro mês do label (para casos agrupados como "Janeiro-Março")
+      const aMonth = a.mes.split('-')[0].trim();
+      const bMonth = b.mes.split('-')[0].trim();
+      
+      const aOrder = monthOrder[aMonth as keyof typeof monthOrder] || 0;
+      const bOrder = monthOrder[bMonth as keyof typeof monthOrder] || 0;
+      
+      return aOrder - bOrder;
+    }).map(item => {
+      // Converter nomes completos para abreviados
+      const parts = item.mes.split('-');
+      const abbreviatedParts = parts.map(part => {
+        const month = part.trim();
+        return monthAbbreviations[month as keyof typeof monthAbbreviations] || month;
+      });
+      
+      return {
+        ...item,
+        mes: abbreviatedParts.join('-')
+      };
+    });
+  };
+
+  // Função para agrupar dados baseado no tamanho da tela
+  const groupDataByScreenSize = (data: { mes: string; valor: number }[]) => {
+    if (data.length === 0) return data;
+    
+    // Primeiro, ordenar os dados cronologicamente
+    const sortedData = sortMonthsChronologically(data);
+    
+    // Verificar se estamos em uma tela muito pequena (mobile)
+    const isSmallScreen = windowWidth < 640;
+    const isMediumScreen = windowWidth >= 640 && windowWidth < 1024;
+    
+    if (!isSmallScreen && !isMediumScreen) {
+      return sortedData; // Tela grande, mostrar todos os meses ordenados
+    }
+    
+    // Para telas pequenas, agrupar de 3 em 3 meses
+    if (isSmallScreen && sortedData.length > 3) {
+      const grouped = [];
+      for (let i = 0; i < sortedData.length; i += 3) {
+        const group = sortedData.slice(i, i + 3);
+        const totalValue = group.reduce((sum, item) => sum + item.valor, 0);
+        const firstMonth = group[0].mes;
+        const lastMonth = group[group.length - 1].mes;
+        const label = group.length === 1 ? firstMonth : `${firstMonth}-${lastMonth}`;
+        
+        grouped.push({
+          mes: label,
+          valor: totalValue
+        });
+      }
+      return grouped;
+    }
+    
+    // Para telas médias, agrupar de 2 em 2 meses
+    if (isMediumScreen && sortedData.length > 4) {
+      const grouped = [];
+      for (let i = 0; i < sortedData.length; i += 2) {
+        const group = sortedData.slice(i, i + 2);
+        const totalValue = group.reduce((sum, item) => sum + item.valor, 0);
+        const firstMonth = group[0].mes;
+        const lastMonth = group[group.length - 1].mes;
+        const label = group.length === 1 ? firstMonth : `${firstMonth}-${lastMonth}`;
+        
+        grouped.push({
+          mes: label,
+          valor: totalValue
+        });
+      }
+      return grouped;
+    }
+    
+    return sortedData;
+  };
+
   const renderBarChart = (data: { mes: string; valor: number }[], color: string, title: string) => {
     if (data.length === 0) {
       return (
@@ -242,25 +349,35 @@ export const Reports: React.FC = () => {
       );
     }
     
-    const maxValue = getMaxValue(data);
+    // Agrupar dados baseado no tamanho da tela
+    const groupedData = groupDataByScreenSize(data);
+    const maxValue = getMaxValue(groupedData);
+    const isGrouped = groupedData.length < data.length;
     
     return (
-      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
-        <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
+      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          {isGrouped && (
+            <span className="text-xs text-blue-400 bg-blue-900/20 px-2 py-1 rounded">
+              📱 Agrupado
+            </span>
+          )}
+        </div>
         <div className="space-y-3">
-          {data.map((item, index) => (
-            <div key={index} className="flex items-center space-x-3">
-              <div className="w-12 text-sm text-gray-300">{item.mes}</div>
-              <div className="flex-1">
+          {groupedData.map((item, index) => (
+            <div key={index} className="flex items-center space-x-3 min-w-0">
+              <div className="w-12 text-sm text-gray-300 flex-shrink-0 truncate">{item.mes}</div>
+              <div className="flex-1 min-w-0">
                 <div className="relative">
                   <div 
-                    className="h-8 rounded-lg transition-all duration-300 hover:opacity-80 flex items-center justify-center"
+                    className="h-8 rounded-lg transition-all duration-300 hover:opacity-80 flex items-center justify-center min-w-0"
                     style={{
-                      width: `${(item.valor / maxValue) * 100}%`,
+                      width: `${Math.max((item.valor / maxValue) * 100, 5)}%`,
                       backgroundColor: color,
                     }}
                   >
-                    <span className="text-xs font-medium text-white">
+                    <span className="text-xs font-medium text-white truncate px-1">
                       {formatCurrency(item.valor)}
                     </span>
                   </div>
@@ -307,21 +424,21 @@ export const Reports: React.FC = () => {
     const total = validData.reduce((sum, item) => sum + item.valor, 0);
     
     return (
-      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
+      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 overflow-hidden">
         <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
         <div className="space-y-3">
           {validData.map((item, index) => {
             const percentage = total > 0 ? ((item.valor / total) * 100) : 0;
             return (
-              <div key={index} className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+              <div key={index} className="flex items-center justify-between min-w-0">
+                <div className="flex items-center space-x-3 min-w-0 flex-1">
                   <div 
-                    className="w-4 h-4 rounded-full"
+                    className="w-4 h-4 rounded-full flex-shrink-0"
                     style={{ backgroundColor: item.cor }}
                   />
-                  <span className="text-gray-300 text-sm">{item.categoria}</span>
+                  <span className="text-gray-300 text-sm truncate">{item.categoria}</span>
                 </div>
-                <div className="text-right">
+                <div className="text-right flex-shrink-0 ml-2">
                   <div className="text-white font-medium">{formatCurrency(item.valor)}</div>
                   <div className="text-gray-400 text-xs">
                     {isNaN(percentage) ? '0.0%' : percentage.toFixed(1) + '%'}
@@ -347,19 +464,29 @@ export const Reports: React.FC = () => {
       );
     }
     
-    const maxValue = getMaxValue(data);
-    const points = data.map((item, index) => ({
-      x: (index / (data.length - 1)) * 100,
+    // Agrupar dados baseado no tamanho da tela
+    const groupedData = groupDataByScreenSize(data);
+    const maxValue = getMaxValue(groupedData);
+    const isGrouped = groupedData.length < data.length;
+    const points = groupedData.map((item, index) => ({
+      x: (index / (groupedData.length - 1)) * 100,
       y: 100 - ((item.valor / maxValue) * 100),
       value: item.valor,
       month: item.mes,
     }));
 
     return (
-      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
-        <h3 className="text-lg font-semibold text-white mb-4">{title}</h3>
+      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          {isGrouped && (
+            <span className="text-xs text-blue-400 bg-blue-900/20 px-2 py-1 rounded">
+              📱 Agrupado
+            </span>
+          )}
+        </div>
         <div className="relative h-48">
-          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ maxWidth: '100%' }}>
             <defs>
               <linearGradient id="lineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
@@ -391,9 +518,9 @@ export const Reports: React.FC = () => {
               </>
             )}
           </svg>
-          <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-400">
-            {data.map((item, index) => (
-              <span key={index}>{item.mes}</span>
+          <div className="absolute bottom-0 left-0 right-0 flex justify-between text-xs text-gray-400 overflow-hidden">
+            {groupedData.map((item, index) => (
+              <span key={index} className="truncate px-1">{item.mes}</span>
             ))}
           </div>
         </div>
@@ -414,24 +541,24 @@ export const Reports: React.FC = () => {
     }
 
     return (
-      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600">
+      <div className="bg-gray-700 rounded-lg p-6 border border-gray-600 overflow-hidden">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
           {icon}
           <span className="ml-2">{title}</span>
         </h3>
         <div className="space-y-3">
           {data.map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-600 rounded-lg">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-600 rounded-lg min-w-0">
+              <div className="flex items-center space-x-3 min-w-0 flex-1">
+                <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                   {index + 1}
                 </div>
-                <div>
-                  <div className="text-white font-medium">{item.descricao}</div>
-                  <div className="text-gray-400 text-sm">{item.data}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-white font-medium truncate">{item.descricao}</div>
+                  <div className="text-gray-400 text-sm truncate">{item.data}</div>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="text-right flex-shrink-0 ml-2">
                 <div className="text-white font-bold">{formatCurrency(item.valor)}</div>
               </div>
             </div>
@@ -443,7 +570,7 @@ export const Reports: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-white text-lg">Carregando relatórios...</div>
       </div>
     );
@@ -451,7 +578,7 @@ export const Reports: React.FC = () => {
 
   if (error && error.includes('não implementados')) {
     return (
-      <div className="w-full h-full bg-gray-900 flex flex-col overflow-hidden">
+      <div className="min-h-screen bg-gray-900 flex flex-col">
         {/* Header */}
         <header className="bg-gray-800 border-b border-gray-700 shadow-lg flex-shrink-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -466,15 +593,15 @@ export const Reports: React.FC = () => {
                   <span>Voltar</span>
                 </Button>
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">📊</span>
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-4xl">📊</span>
                   </div>
                   <h1 className="text-xl font-bold text-white">Relatórios</h1>
                 </div>
               </div>
               
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
+                <div className="hidden sm:flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
                     <User className="w-4 h-4 text-gray-300" />
                   </div>
@@ -486,7 +613,7 @@ export const Reports: React.FC = () => {
                   className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Sair</span>
+                  <span className="hidden sm:inline">Sair</span>
                 </Button>
               </div>
             </div>
@@ -494,8 +621,8 @@ export const Reports: React.FC = () => {
         </header>
 
         {/* Conteúdo principal - Relatórios não implementados */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main className="flex-1 py-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-gray-800 rounded-xl p-8 md:p-12 shadow-2xl border border-gray-700 text-center">
               <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-6">
                 <span className="text-4xl">📊</span>
@@ -575,7 +702,7 @@ export const Reports: React.FC = () => {
 
   if (error) {
     return (
-      <div className="w-full h-full bg-gray-900 flex flex-col overflow-hidden">
+      <div className="min-h-screen bg-gray-900 flex flex-col">
         {/* Header */}
         <header className="bg-gray-800 border-b border-gray-700 shadow-lg flex-shrink-0">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -590,15 +717,15 @@ export const Reports: React.FC = () => {
                   <span>Voltar</span>
                 </Button>
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">📊</span>
+                  <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-orange-500 rounded-lg flex items-center justify-center">
+                    <span className="text-4xl">⚠️</span>
                   </div>
                   <h1 className="text-xl font-bold text-white">Relatórios</h1>
                 </div>
               </div>
               
               <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2">
+                <div className="hidden sm:flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
                     <User className="w-4 h-4 text-gray-300" />
                   </div>
@@ -618,8 +745,8 @@ export const Reports: React.FC = () => {
         </header>
 
         {/* Conteúdo principal - Estado de erro */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main className="flex-1 py-12">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-gray-800 rounded-xl p-8 md:p-12 shadow-2xl border border-gray-700 text-center">
               <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-red-500 to-orange-500 rounded-full mb-6">
                 <span className="text-4xl">⚠️</span>
@@ -668,8 +795,7 @@ export const Reports: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full bg-gray-900 flex flex-col overflow-hidden">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-900 flex flex-col">
       <header className="bg-gray-800 border-b border-gray-700 shadow-lg flex-shrink-0">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
@@ -691,7 +817,7 @@ export const Reports: React.FC = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
                 <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
                   <User className="w-4 h-4 text-gray-300" />
                 </div>
@@ -703,17 +829,16 @@ export const Reports: React.FC = () => {
                 className="flex items-center space-x-2 hover:scale-105 transition-transform duration-200 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
               >
                 <LogOut className="w-4 h-4" />
-                <span>Sair</span>
+                <span className="hidden sm:inline">Sair</span>
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Tabs */}
       <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex space-x-8">
+          <div className="flex flex-wrap gap-2 sm:gap-0 sm:space-x-8">
             <button
               onClick={() => setActiveTab('overview')}
               className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
@@ -770,16 +895,26 @@ export const Reports: React.FC = () => {
         </div>
       </div>
 
-      {/* Conteúdo principal */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          {/* Mensagem informativa sobre dados parciais */}
+      <main className="flex-1 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {hasPartialData && !error && (
             <div className="mb-6 bg-blue-900/20 border border-blue-500/30 rounded-lg p-4">
               <div className="flex items-center space-x-2">
                 <span className="text-blue-400">ℹ️</span>
                 <p className="text-blue-300 text-sm">
                   Alguns relatórios podem não estar disponíveis ainda. Os gráficos vazios indicam que o endpoint correspondente não está implementado ou retornou erro.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {windowWidth < 1024 && (
+            <div className="mb-6 bg-green-900/20 border border-green-500/30 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <span className="text-green-400">📱</span>
+                <p className="text-green-300 text-sm">
+                  <strong>Dica:</strong> Em telas menores, os gráficos de meses são automaticamente agrupados para melhor visualização. 
+                  {windowWidth < 640 ? ' Agrupamento de 3 em 3 meses.' : ' Agrupamento de 2 em 2 meses.'}
                 </p>
               </div>
             </div>

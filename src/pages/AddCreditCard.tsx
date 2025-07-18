@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CreditCard } from 'lucide-react';
+import { ArrowLeft, CreditCard, Save, X } from 'lucide-react';
 import { creditCardService, userService } from '../services/api';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -168,22 +168,24 @@ const AddCreditCard: React.FC = () => {
               💡 Dia do mês em que vence a fatura (1-31)
             </p>
 
-            <div className="flex space-x-4 pt-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
               <Button
                 type="submit"
                 disabled={loading}
-                className="flex-1"
+                className="flex-1 flex items-center justify-center"
               >
-                {loading ? '💳 Adicionando...' : '💳 Adicionar Cartão'}
+                <Save className="w-4 h-4 mr-3" />
+                <span>{loading ? 'Adicionando...' : 'Adicionar Cartão'}</span>
               </Button>
               
               <Button
                 type="button"
                 onClick={() => navigate('/dashboard')}
                 variant="secondary"
-                className="flex-1"
+                className="flex-1 flex items-center justify-center"
               >
-                ❌ Cancelar
+                <X className="w-4 h-4 mr-3" />
+                <span>Cancelar</span>
               </Button>
             </div>
           </form>

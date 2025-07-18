@@ -37,6 +37,7 @@ export const Input: React.FC<InputProps> = ({
           w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border transition-all duration-200
           bg-gray-900 border-gray-700 text-white placeholder-gray-500
           focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500
+          text-base md:text-lg
           ${error ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
         `}
       />

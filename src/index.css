@@ -5,9 +5,23 @@
 :root {
   --primary-green: #16a34a;
   --primary-green-hover: #15803d;
+  --primary-blue: #3b82f6;
+  --primary-purple: #8b5cf6;
   --dark-gray: #0f172a;
   --darker-gray: #020617;
   --light-gray: #6b7280;
+  
+  /* Novas variáveis para modernização */
+  --glass-bg: rgba(30, 41, 59, 0.8);
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --card-bg: rgba(51, 65, 85, 0.6);
+  --card-border: rgba(148, 163, 184, 0.08);
+  --hover-bg: rgba(51, 65, 85, 0.8);
+  --gradient-primary: linear-gradient(135deg, #16a34a 0%, #3b82f6 100%);
+  --gradient-secondary: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  --gradient-dark: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --blur-bg: blur(20px);
 }
 
 * {
@@ -18,13 +32,19 @@
 
 html, body {
   height: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  /* Otimizações para melhor performance de scroll */
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 #root {
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  /* Otimizações para melhor performance de scroll */
+  will-change: scroll-position;
 }
 
 body {
@@ -33,6 +53,214 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #020617;
+  background: linear-gradient(135deg, #020617 0%, #0f172a 50%, #1e293b 100%);
   color: #ffffff;
+  position: relative;
+  /* Otimizações para melhor performance de scroll */
+  overflow-x: hidden;
+}
+
+/* Efeito de fundo animado sutil */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(22, 163, 74, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Classes utilitárias modernas */
+.glass {
+  background: var(--glass-bg);
+  /* Removendo backdrop-filter para melhorar performance de scroll */
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Classe para elementos que realmente precisam do efeito glassmorphism */
+.glass-essential {
+  background: var(--glass-bg);
+  backdrop-filter: var(--blur-bg);
+  -webkit-backdrop-filter: var(--blur-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  /* Otimização para melhor performance */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+.card-modern {
+  background: var(--card-bg);
+  /* Removendo backdrop-filter para melhorar performance de scroll */
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-modern:hover {
+  background: var(--hover-bg);
+  border-color: rgba(148, 163, 184, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
+.gradient-text {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+  background: var(--card-bg);
+  border-radius: 12px;
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  background: var(--gradient-primary);
+  border-radius: 12px;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+/* Melhorias de responsividade */
+@media (max-width: 640px) {
+  /* Removendo backdrop-filter para melhorar performance */
+  
+  /* Ajustes para telas pequenas */
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+  
+  .text-3xl {
+    font-size: 1.875rem;
+  }
+  
+  .text-4xl {
+    font-size: 2.25rem;
+  }
+}
+
+/* Melhorias para tablets */
+@media (min-width: 641px) and (max-width: 1024px) {
+  /* Removendo backdrop-filter para melhorar performance */
+}
+
+/* Otimizações para telas grandes */
+@media (min-width: 1025px) {
+  /* Removendo backdrop-filter para melhorar performance */
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #16a34a, #3b82f6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #15803d, #2563eb);
+}
+
+/* Animações suaves */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Efeitos de hover modernos */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
+
+.hover-glow {
+  transition: all 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(22, 163, 74, 0.3);
+}
+
+/* Botões modernos */
+.btn-modern {
+  background: var(--gradient-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-modern:hover::before {
+  left: 100%;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(22, 163, 74, 0.4);
 }

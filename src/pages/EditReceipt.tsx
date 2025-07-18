@@ -303,16 +303,16 @@ export const EditReceipt: React.FC = () => {
               </div>
             )}
 
-            <div className="flex space-x-4">
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="flex-1 flex items-center justify-center space-x-2"
+                className="flex-1 flex items-center justify-center"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-3" />
                 ) : (
-                  <Save className="w-5 h-5" />
+                  <Save className="w-5 h-5 mr-3" />
                 )}
                 <span>{isLoading ? 'Salvando...' : 'Salvar Alterações'}</span>
               </Button>
@@ -321,9 +321,9 @@ export const EditReceipt: React.FC = () => {
                 type="button"
                 variant="secondary"
                 onClick={() => navigate('/dashboard')}
-                className="flex items-center space-x-2"
+                className="flex-1 flex items-center justify-center"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5 mr-3" />
                 <span>Cancelar</span>
               </Button>
             </div>

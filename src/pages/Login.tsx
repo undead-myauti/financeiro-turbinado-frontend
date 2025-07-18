@@ -82,14 +82,14 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="h-full bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-sm md:max-w-md">
-        <div className="bg-gray-800 rounded-xl p-6 md:p-8 shadow-2xl border border-gray-700">
+        <div className="glass rounded-xl p-6 md:p-8 shadow-2xl border border-gray-700">
           <div className="text-center mb-6 md:mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-green-600 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 md:w-16 md:h-16 bg-gradient-to-r from-green-500 to-blue-500 rounded-full mb-4">
               <LogIn className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
-            <h1 className="text-lg md:text-2xl font-bold text-white mb-2">
+            <h1 className="text-xl md:text-2xl font-bold gradient-text mb-2">
               Financeiro Turbinado
             </h1>
             <p className="text-gray-400 text-sm md:text-base">
@@ -97,9 +97,9 @@ export const Login: React.FC = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <Input
-              label="Email"
+              label="📧 Email"
               type="email"
               value={formData.email}
               onChange={(value) => handleInputChange('email', value)}
@@ -110,7 +110,7 @@ export const Login: React.FC = () => {
 
             <div className="mb-3 md:mb-4">
               <label className="block text-gray-300 text-sm font-medium mb-2">
-                Senha
+                🔒 Senha
                 <span className="text-red-500 ml-1">*</span>
               </label>
               <div className="relative">
@@ -124,13 +124,14 @@ export const Login: React.FC = () => {
                     w-full px-3 py-2 md:px-4 md:py-3 pr-12 rounded-lg border transition-all duration-200
                     bg-gray-900 border-gray-700 text-white placeholder-gray-500
                     focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500
+                    text-base md:text-lg
                     ${errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
                   `}
                 />
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors p-1"
                 >
                   {showPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -159,7 +160,7 @@ export const Login: React.FC = () => {
             </Button>
           </form>
 
-          <div className="mt-4 md:mt-6 text-center">
+          <div className="mt-6 md:mt-8 text-center">
             <p className="text-gray-400 text-sm">
               Não tem uma conta?{' '}
               <Link to="/register" className="text-green-500 hover:text-green-400 font-medium">
