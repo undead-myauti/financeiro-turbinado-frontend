@@ -97,28 +97,14 @@ export const AddIncome: React.FC = () => {
       const numericValue = formData.amount.replace(/\D/g, '');
       const amount = Number(numericValue) / 100;
 
-      const incomeData = {
-        description: formData.description.trim(),
-        amount: amount,
-        date: formData.date,
-        category: formData.category,
-        user: {
-          id: currentUser.id
-        }
-      };
-
       const selectedCategory = categories.find(cat => cat.name === formData.category);
       
-      const receiptData = {
+      const receiptData: any = {
         name: formData.description.trim(),
         value: amount,
         date: formData.date,
-        category: {
-          id: selectedCategory?.id || 1
-        },
-        user: {
-          id: currentUser.id
-        }
+        categoryId: selectedCategory?.id || 1,
+        userId: currentUser.id
       };
 
       await receiptService.create(receiptData);
@@ -282,12 +268,30 @@ export const AddIncome: React.FC = () => {
                 <option value="">
                   {loadingCategories ? 'Carregando categorias...' : 'Selecione uma categoria'}
                 </option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.name}>
-                    {category.name}
+                {categories.length === 0 && !loadingCategories ? (
+                  <option value="" disabled>
+                    Nenhuma categoria disponível
                   </option>
-                ))}
+                ) : (
+                  categories.map((category) => (
+                    <option key={category.id} value={category.name}>
+                      {category.name}
+                    </option>
+                  ))
+                )}
               </select>
+              {categories.length === 0 && !loadingCategories && (
+                <p className="text-yellow-500 text-sm mt-1">
+                  ⚠️ Nenhuma categoria encontrada. 
+                  <button 
+                    type="button"
+                    onClick={() => navigate('/add-category')}
+                    className="text-blue-400 hover:text-blue-300 underline ml-1"
+                  >
+                    Criar primeira categoria
+                  </button>
+                </p>
+              )}
               {errors.category && (
                 <p className="text-red-500 text-sm mt-1">{errors.category}</p>
               )}

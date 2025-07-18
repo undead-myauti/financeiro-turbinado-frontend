@@ -8,6 +8,12 @@ import { Dashboard } from './pages/Dashboard';
 import { AddIncome } from './pages/AddIncome';
 import { AddCategory } from './pages/AddCategory';
 import { AddExpense } from './pages/AddExpense';
+import { EditExpense } from './pages/EditExpense';
+import { EditReceipt } from './pages/EditReceipt';
+import { ExpensesList } from './pages/ExpensesList';
+import { ReceiptsList } from './pages/ReceiptsList';
+import { Reports } from './pages/Reports';
+import AddCreditCard from './pages/AddCreditCard';
 
 // Componente para proteger rotas
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -51,6 +57,54 @@ function App() {
             element={
               <ProtectedRoute>
                 <AddExpense />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/edit-expense/:id" 
+            element={
+              <ProtectedRoute>
+                <EditExpense />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/edit-receipt/:id" 
+            element={
+              <ProtectedRoute>
+                <EditReceipt />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/expenses" 
+            element={
+              <ProtectedRoute>
+                <ExpensesList />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/receipts" 
+            element={
+              <ProtectedRoute>
+                <ReceiptsList />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/reports" 
+            element={
+              <ProtectedRoute>
+                <Reports />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/add-credit-card" 
+            element={
+              <ProtectedRoute>
+                <AddCreditCard />
               </ProtectedRoute>
             } 
           />

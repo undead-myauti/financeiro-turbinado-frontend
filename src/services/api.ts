@@ -1,5 +1,15 @@
 import axios from 'axios';
-import type { User, LoginRequest, LoginResponse, Expense, Category, Income } from '../types';
+import type { 
+  User, 
+  LoginRequest, 
+  LoginResponse, 
+  Expense, 
+  Category, 
+  Receipt,
+  CreditCard,
+  DashboardData,
+  UpcomingDue
+} from '../types';
 
 const API_BASE_URL = 'http://localhost:8000'; 
 
@@ -71,6 +81,21 @@ export const expenseService = {
     const response = await api.get('/expense/');
     return response.data;
   },
+  
+  getById: async (id: number) => {
+    const response = await api.get(`/expense/${id}`);
+    return response.data;
+  },
+  
+  update: async (id: number, expense: Expense) => {
+    const response = await api.put(`/expense/${id}`, expense);
+    return response.data;
+  },
+  
+  delete: async (id: number) => {
+    const response = await api.delete(`/expense/${id}`);
+    return response.data;
+  },
 };
 
 export const categoryService = {
@@ -86,13 +111,92 @@ export const categoryService = {
 };
 
 export const receiptService = {
-  create: async (receipt: any) => {
+  create: async (receipt: Receipt) => {
     const response = await api.post('/receipt/', receipt);
     return response.data;
   },
   
   list: async () => {
     const response = await api.get('/receipt/');
+    return response.data;
+  },
+  
+  getById: async (id: number) => {
+    const response = await api.get(`/receipt/${id}`);
+    return response.data;
+  },
+  
+  update: async (id: number, receipt: Receipt) => {
+    const response = await api.put(`/receipt/${id}`, receipt);
+    return response.data;
+  },
+  
+  delete: async (id: number) => {
+    const response = await api.delete(`/receipt/${id}`);
+    return response.data;
+  },
+};
+
+export const creditCardService = {
+  create: async (creditCard: CreditCard) => {
+    const response = await api.post('/credit-cards', creditCard);
+    return response.data;
+  },
+  
+  list: async () => {
+    const response = await api.get('/credit-cards');
+    return response.data;
+  },
+};
+
+export const dashboardService = {
+  getDashboard: async (): Promise<DashboardData> => {
+    const response = await api.get('/dashboard');
+    return response.data;
+  },
+  
+  getUpcomingDue: async (): Promise<UpcomingDue[]> => {
+    const response = await api.get('/dashboard/upcoming-due');
+    return response.data;
+  },
+};
+
+export const reportsService = {
+  // Relatórios de Receitas
+  getIncomeMonthly: async () => {
+    const response = await api.get('/dashboard/reports/income/monthly');
+    return response.data;
+  },
+  
+  getIncomeByCategory: async () => {
+    const response = await api.get('/dashboard/reports/income/category');
+    return response.data;
+  },
+  
+  getIncomeTop: async () => {
+    const response = await api.get('/dashboard/reports/income/top');
+    return response.data;
+  },
+  
+  // Relatórios de Despesas
+  getExpenseMonthly: async () => {
+    const response = await api.get('/dashboard/reports/expense/monthly');
+    return response.data;
+  },
+  
+  getExpenseByCategory: async () => {
+    const response = await api.get('/dashboard/reports/expense/category');
+    return response.data;
+  },
+  
+  getExpenseTop: async () => {
+    const response = await api.get('/dashboard/reports/expense/top');
+    return response.data;
+  },
+  
+  // Relatório de Saldo Mensal
+  getBalanceMonthly: async () => {
+    const response = await api.get('/dashboard/reports/balance/monthly');
     return response.data;
   },
 }; 

@@ -18,16 +18,6 @@ export interface LoginResponse {
   token: string;
 }
 
-export interface Expense {
-  id?: number;
-  name: string;
-  value: number;
-  date: string;
-  user: {
-    id: number;
-  };
-}
-
 export interface Category {
   id?: number;
   name: string;
@@ -36,14 +26,89 @@ export interface Category {
   };
 }
 
-export interface Income {
+export interface Expense {
   id?: number;
-  description: string;
-  amount: number;
+  name: string;
+  value: number;
   date: string;
-  category: string;
+  category: {
+    id: number;
+  };
   user: {
     id: number;
+  };
+}
+
+export interface Receipt {
+  id?: number;
+  name: string;
+  value: number;
+  date: string;
+  category: {
+    id: number;
+  };
+  user: {
+    id: number;
+  };
+}
+
+export interface CreditCard {
+  id?: number;
+  name: string;
+  limit: number;
+  dueDay: number;
+  user: {
+    id: number;
+  };
+}
+
+export interface DashboardData {
+  currentBalance: number;
+  currentMonthIncome: number;
+  currentMonthExpense: number;
+  currentMonthBalance: number;
+  activeCreditCards: number;
+  upcomingDueDates: number;
+  incomeGrowthPercentage?: number;
+  expenseGrowthPercentage?: number;
+  balanceGrowthPercentage?: number;
+}
+
+export interface MonthlyReport {
+  mes: string;
+  valor: number;
+}
+
+export interface CategoryReport {
+  categoria: string;
+  valor: number;
+  cor: string;
+}
+
+export interface TopItem {
+  descricao: string;
+  valor: number;
+  data: string;
+}
+
+export interface ReportsData {
+  receitasPorMes: MonthlyReport[];
+  despesasPorMes: MonthlyReport[];
+  receitasPorCategoria: CategoryReport[];
+  despesasPorCategoria: CategoryReport[];
+  saldoMensal: MonthlyReport[];
+  topDespesas: TopItem[];
+  topReceitas: TopItem[];
+}
+
+export interface UpcomingDue {
+  id: number;
+  name: string;
+  value: number;
+  date: string;
+  category: {
+    id: number;
+    name: string;
   };
 }
 

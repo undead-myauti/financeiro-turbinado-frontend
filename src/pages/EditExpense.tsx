@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, DollarSign, Save, X } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, DollarSign, Save, X, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
@@ -13,8 +13,9 @@ interface ExpenseFormData {
   category: string;
 }
 
-export const AddExpense: React.FC = () => {
+export const EditExpense: React.FC = () => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [formData, setFormData] = useState<ExpenseFormData>({
     name: '',
     amount: '',
@@ -24,31 +25,50 @@ export const AddExpense: React.FC = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const [categories, setCategories] = useState<Array<{id: number, name: string}>>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
-        const response = await categoryService.list();
-        setCategories(response);
-      } catch (error) {
-        console.error('Erro ao carregar categorias:', error);
-        setCategories([
-          { id: 1, name: 'Alimentação' },
-          { id: 2, name: 'Transporte' },
-          { id: 3, name: 'Moradia' },
-          { id: 4, name: 'Lazer' },
-          { id: 5, name: 'Saúde' },
-          { id: 6, name: 'Outros' }
-        ]);
+        setIsLoadingData(true);
+        
+        // Carregar categorias
+        const categoriesResponse = await categoryService.list();
+        setCategories(categoriesResponse);
+        
+        // Carregar dados da despesa
+        if (id) {
+          const expenseData = await expenseService.getById(parseInt(id));
+          
+          setFormData({
+            name: expenseData.name,
+            amount: formatCurrency((expenseData.value * 100).toString()),
+            date: expenseData.date,
+            category: expenseData.category?.name || '',
+          });
+        }
+      } catch (error: any) {
+        console.error('Erro ao carregar dados:', error);
+        
+        if (error.response?.status === 404) {
+          toast.error('❌ Despesa não encontrada');
+          navigate('/dashboard');
+          return;
+        }
+        
+        toast.error('❌ Erro ao carregar dados da despesa');
+        navigate('/dashboard');
       } finally {
+        setIsLoadingData(false);
         setLoadingCategories(false);
       }
     };
 
-    loadCategories();
-  }, []);
+    loadData();
+  }, [id, navigate]);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -107,14 +127,14 @@ export const AddExpense: React.FC = () => {
         userId: currentUser.id
       };
 
-      await expenseService.create(expenseData);
+      await expenseService.update(parseInt(id!), expenseData);
       
-      toast.success('💸 Despesa adicionada com sucesso!');
+      toast.success('💸 Despesa atualizada com sucesso!');
       
       navigate('/dashboard');
       
     } catch (error: any) {
-      console.error('Erro ao adicionar despesa:', error);
+      console.error('Erro ao atualizar despesa:', error);
       
       if (error.response?.status === 401) {
         toast.error('❌ Sessão expirada. Faça login novamente.');
@@ -123,11 +143,26 @@ export const AddExpense: React.FC = () => {
         toast.error(`❌ ${error.response.data.message}`);
         setErrors({ submit: error.response.data.message });
       } else {
-        toast.error('❌ Erro ao salvar despesa. Tente novamente.');
-        setErrors({ submit: 'Erro ao salvar despesa. Tente novamente.' });
+        toast.error('❌ Erro ao atualizar despesa. Tente novamente.');
+        setErrors({ submit: 'Erro ao atualizar despesa. Tente novamente.' });
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      setIsLoading(true);
+      await expenseService.delete(parseInt(id!));
+      toast.success('🗑️ Despesa excluída com sucesso!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      console.error('Erro ao excluir despesa:', error);
+      toast.error('❌ Erro ao excluir despesa. Tente novamente.');
+    } finally {
+      setIsLoading(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -155,6 +190,14 @@ export const AddExpense: React.FC = () => {
     handleInputChange('amount', formatted);
   };
 
+  if (isLoadingData) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-white text-lg">Carregando despesa...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-900">
       <header className="bg-gray-800 border-b border-gray-700 shadow-lg">
@@ -170,9 +213,18 @@ export const AddExpense: React.FC = () => {
                 <span>Voltar</span>
               </Button>
               <h1 className="text-xl font-bold text-white">
-                💸 Nova Despesa
+                ✏️ Editar Despesa
               </h1>
             </div>
+            
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
+              variant="secondary"
+              className="flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+            >
+              <Trash2 className="w-4 h-4" />
+              <span>Excluir</span>
+            </Button>
           </div>
         </div>
       </header>
@@ -184,10 +236,10 @@ export const AddExpense: React.FC = () => {
               <DollarSign className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-              💸 Nova Despesa
+              ✏️ Editar Despesa
             </h2>
             <p className="text-gray-400">
-              Registre uma nova saída de dinheiro
+              Atualize os dados da despesa
             </p>
           </div>
 
@@ -198,134 +250,123 @@ export const AddExpense: React.FC = () => {
               value={formData.name}
               onChange={(value) => handleInputChange('name', value)}
               placeholder="Ex: Aluguel, Conta de luz..."
-              required
               error={errors.name}
+              required
+            />
+
+            <Input
+              label="💰 Valor"
+              type="text"
+              value={formData.amount}
+              onChange={handleAmountChange}
+              placeholder="R$ 0,00"
+              error={errors.amount}
+              required
+            />
+
+            <Input
+              label="📅 Data"
+              type="date"
+              value={formData.date}
+              onChange={(value) => handleInputChange('date', value)}
+              error={errors.date}
+              required
             />
 
             <div>
-              <label className="block text-gray-300 text-sm font-medium mb-2">
-                💵 Valor
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                type="text"
-                value={formData.amount}
-                onChange={(e) => handleAmountChange(e.target.value)}
-                placeholder="R$ 0,00"
-                required
-                className={`
-                  w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border transition-all duration-200
-                  bg-gray-900 border-gray-700 text-white placeholder-gray-500
-                  focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500
-                  ${errors.amount ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
-                `}
-              />
-              {errors.amount && (
-                <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-gray-300 text-sm font-medium mb-2">
-                📅 Data
-                <span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                type="date"
-                value={formData.date}
-                onChange={(e) => handleInputChange('date', e.target.value)}
-                required
-                className={`
-                  w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border transition-all duration-200
-                  bg-gray-900 border-gray-700 text-white
-                  focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500
-                  ${errors.date ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
-                `}
-              />
-              {errors.date && (
-                <p className="text-red-500 text-sm mt-1">{errors.date}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-gray-300 text-sm font-medium mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 🏷️ Categoria
-                <span className="text-red-500 ml-1">*</span>
               </label>
               <select
                 value={formData.category}
                 onChange={(e) => handleInputChange('category', e.target.value)}
-                required
+                className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors duration-200 ${
+                  errors.category ? 'border-red-500' : 'border-gray-600'
+                }`}
                 disabled={loadingCategories}
-                className={`
-                  w-full px-3 py-2 md:px-4 md:py-3 rounded-lg border transition-all duration-200
-                  bg-gray-900 border-gray-700 text-white
-                  focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500
-                  ${errors.category ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}
-                  ${loadingCategories ? 'opacity-50 cursor-not-allowed' : ''}
-                `}
               >
-                <option value="">
-                  {loadingCategories ? 'Carregando categorias...' : 'Selecione uma categoria'}
-                </option>
-                {categories.length === 0 && !loadingCategories ? (
-                  <option value="" disabled>
-                    Nenhuma categoria disponível
+                <option value="">Selecione uma categoria</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                    {category.name}
                   </option>
-                ) : (
-                  categories.map((category) => (
-                    <option key={category.id} value={category.name}>
-                      {category.name}
-                    </option>
-                  ))
-                )}
+                ))}
               </select>
-              {categories.length === 0 && !loadingCategories && (
-                <p className="text-yellow-500 text-sm mt-1">
-                  ⚠️ Nenhuma categoria encontrada. 
-                  <button 
-                    type="button"
-                    onClick={() => navigate('/add-category')}
-                    className="text-blue-400 hover:text-blue-300 underline ml-1"
-                  >
-                    Criar primeira categoria
-                  </button>
-                </p>
-              )}
               {errors.category && (
-                <p className="text-red-500 text-sm mt-1">{errors.category}</p>
+                <p className="mt-1 text-sm text-red-500">{errors.category}</p>
               )}
             </div>
 
             {errors.submit && (
-              <div className="text-red-500 text-sm text-center">
-                {errors.submit}
+              <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-4">
+                <p className="text-red-400 text-sm">{errors.submit}</p>
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+            <div className="flex space-x-4">
               <Button
                 type="submit"
                 disabled={isLoading}
                 className="flex-1 flex items-center justify-center space-x-2"
               >
-                <Save className="w-4 h-4" />
-                <span>{isLoading ? 'Salvando...' : 'Salvar Despesa'}</span>
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Save className="w-5 h-5" />
+                )}
+                <span>{isLoading ? 'Salvando...' : 'Salvar Alterações'}</span>
               </Button>
               
               <Button
                 type="button"
                 variant="secondary"
                 onClick={() => navigate('/dashboard')}
-                className="flex-1 flex items-center justify-center space-x-2"
+                className="flex items-center space-x-2"
               >
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
                 <span>Cancelar</span>
               </Button>
             </div>
           </form>
         </div>
       </main>
+
+      {/* Modal de confirmação de exclusão */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-gray-800 rounded-xl p-6 md:p-8 shadow-2xl border border-gray-700 max-w-md w-full mx-4">
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-red-500 rounded-full mb-4">
+                <Trash2 className="w-8 h-8 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Confirmar Exclusão
+              </h3>
+              <p className="text-gray-400">
+                Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            
+            <div className="flex space-x-4">
+              <Button
+                onClick={handleDelete}
+                disabled={isLoading}
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
+              >
+                {isLoading ? 'Excluindo...' : 'Sim, Excluir'}
+              </Button>
+              
+              <Button
+                onClick={() => setShowDeleteConfirm(false)}
+                variant="secondary"
+                className="flex-1"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }; 

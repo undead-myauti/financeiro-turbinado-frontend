@@ -46,12 +46,13 @@ export const AddCategory: React.FC = () => {
         throw new Error('Usuário não encontrado');
       }
 
-      const categoryData = {
+      const categoryData: any = {
         name: formData.name.trim(),
-        user: {
-          id: currentUser.id
-        }
+        userId: currentUser.id
       };
+
+      console.log('Dados sendo enviados:', categoryData);
+      console.log('Usuário atual:', currentUser);
 
       await categoryService.create(categoryData);
       
