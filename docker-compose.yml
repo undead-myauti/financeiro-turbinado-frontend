@@ -1,0 +1,59 @@
+version: '3.8'
+
+services:
+  # Frontend React
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: financeiro-turbinado-frontend
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+    networks:
+      - app-network
+
+  # Backend Java (se você tiver a API Java)
+  # Descomente e ajuste se necessário
+  # backend:
+  #   image: openjdk:17-jre-alpine
+  #   ports:
+  #     - "8000:8000"
+  #   container_name: financeiro-turbinado-backend
+  #   restart: unless-stopped
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=production
+  #     - DATABASE_URL=jdbc:postgresql://postgres:5432/financeiro
+  #     - DATABASE_USERNAME=postgres
+  #     - DATABASE_PASSWORD=password
+  #   depends_on:
+  #     - postgres
+  #   networks:
+  #     - app-network
+
+  # PostgreSQL (se você precisar do banco)
+  # Descomente e ajuste se necessário
+  # postgres:
+  #   image: postgres:15-alpine
+  #   ports:
+  #     - "5432:5432"
+  #   container_name: financeiro-turbinado-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     - POSTGRES_DB=financeiro
+  #     - POSTGRES_USER=postgres
+  #     - POSTGRES_PASSWORD=password
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+# Volumes (descomente se usar PostgreSQL)
+# volumes:
+#   postgres_data: 
